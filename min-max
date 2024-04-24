@@ -1,0 +1,41 @@
+import numpy as np
+import multiprocessing
+
+def compute_aggregates(data):
+    min_val = np.min(data)
+    max_val = np.max(data)
+    sum_val = np.sum(data)
+    avg_val = np.mean(data)
+    return min_val, max_val, sum_val, avg_val
+
+def parallel_reduction(data):
+    num_processes = multiprocessing.cpu_count()
+    chunk_size = len(data) // num_processes
+    chunks = [data[i:i+chunk_size] for i in range(0, len(data), chunk_size)]
+    
+    with multiprocessing.Pool(processes=num_processes) as pool:
+        results = pool.map(compute_aggregates, chunks)
+    
+    min_vals, max_vals, sum_vals, avg_vals = zip(*results)
+    min_val = min(min_vals)
+    max_val = max(max_vals)
+    sum_val = sum(sum_vals)
+    avg_val = sum(avg_vals) / len(avg_vals) 
+    
+    return min_val, max_val, sum_val, avg_val
+
+if __name__ == "__main__":
+    # Ask user for the total number of elements
+    total_elements = int(input("Enter the total number of elements in the array: "))
+    
+    # Input the elements
+    data = []
+    for i in range(total_elements):
+        element = float(input(f"Enter element {i+1}: "))
+        data.append(element)
+    
+    min_val, max_val, sum_val, avg_val = parallel_reduction(data)
+    print("Minimum:", min_val)
+    print("Maximum:", max_val)
+    print("Sum:", sum_val)
+    print("Average:", avg_val)
